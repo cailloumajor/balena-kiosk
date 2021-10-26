@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -32,4 +36,24 @@ func main() {
 	if err := c.Init(); err != nil {
 		log.Fatal(err)
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM)
+	defer signal.Stop(sc)
+
+	go func() {
+		for {
+			select {
+			case s := <-sc:
+				log.Printf("caught %q signal, stopping", s)
+				signal.Stop(sc)
+				cancel()
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
 }
