@@ -29,7 +29,11 @@ func TestConfig_Init(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error creating temporary directory: %v", err)
 			}
-			defer os.RemoveAll(dir)
+			defer func() {
+				if err := os.RemoveAll(dir); err != nil {
+					t.Fatalf("failed to remove %q directory: %v", dir, err)
+				}
+			}()
 
 			if err := os.Chdir(dir); err != nil {
 				t.Fatalf("failed to cd to %v: %v", dir, err)

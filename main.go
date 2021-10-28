@@ -15,10 +15,12 @@ import (
 	"github.com/vrischmann/envconfig"
 )
 
+// Config holds the application's configuration
 type Config struct {
 	Period time.Duration `envconfig:"default=1m"`
 }
 
+// Init initializes the application's configuration
 func (c *Config) Init() error {
 	if err := godotenv.Load(); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return fmt.Errorf("error loading .env file: %v", err)
